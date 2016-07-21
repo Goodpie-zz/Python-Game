@@ -1,6 +1,10 @@
+import random
+
+
 class DiamondSquare:
     def __init__(self, size, roughness):
 
+        self.grid = []
         self.size = (2 ** size) + 1
         self.max = self.size - 1
         self.roughness = roughness
@@ -35,7 +39,7 @@ class DiamondSquare:
         half = size / 2
         scale = self.roughness * size
 
-        if (half < 1):
+        if half < 1:
             return
 
         # Square
@@ -74,16 +78,14 @@ class DiamondSquare:
 
     def make_grid(self, size):
 
-        self.grid = []
-
         # Make the grid
         for x in range(size * size):
             self.grid.append(-1)
 
         # Base value
-        self.set(0, 0, 1)
+        self.set(0, 0, 0)
         self.set(self.max, 0, 0.5)
-        self.set(self.max, self.max, 0)
+        self.set(self.max, self.max, 1)
         self.set(0, self.max, 0.5)
 
     # Returns a 2D array of the grid

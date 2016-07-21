@@ -1,10 +1,10 @@
 import pygame
-
-from DiamondSquare import DiamondSquare
-from ImageCache import ImageCache
-from EntityClasses import Player, Button, EnvironmentTile, Mouse
 from pygame.locals import *
+
 from Camera import Camera
+from DiamondSquare import DiamondSquare
+from EntityClasses import Player, Button, EnvironmentTile, Mouse
+from ImageCache import ImageCache
 
 
 class Game:
@@ -26,14 +26,15 @@ class Game:
         self.player_entities = pygame.sprite.Group()
 
         # Create the player
-        self.player = Player(32, 32, self.image_cache.get_cache())
+        self.player = Player(32, 32, self.image_cache)
         self.player_entities.add(self.player)
 
         # Create the level
-        self.level = DiamondSquare(4, 0.03).get_grid_2D()  # Random map created using Diamond Square
+        self.level = DiamondSquare(6, 0.05).get_grid_2D()  # Random map created using Diamond Square
 
     def run(self):
         self.start_menu()
+        self.main_game()
 
     def start_menu(self):
         start_game = False
@@ -113,7 +114,7 @@ class Game:
 
         level_size = (len(self.level[0]) * self.block_size[0], len(self.level) * self.block_size[1])
 
-        camera = Camera(self.main_camera, level_size[0], level_size[1])
+        camera = Camera(level_size, self.window_size)
         mouse = Mouse(pygame.mouse.get_pos())
         mouse_clicked = False
         mosue_right_clicked = False
@@ -170,7 +171,16 @@ class Game:
 
             # Update the entities
             camera.update(self.player)
-            self.player.update(up, down, left, right, [], level_size[0], level_size[1])
+            self.player.update(up, down, left, right, level_size)
+
+            for tile in self.environment_entities:
+                self.screen.blit(tile.image, camera.apply(tile))
+            for player in self.player_entities:
+                self.screen.blit(player.image, camera.apply(player))
+
+            mouse.update(pygame.mouse.get_pos())
+
+            pygame.display.update()
 
     def load_level(self):
 
@@ -180,10 +190,11 @@ class Game:
         for y_tile in self.level:
             x = 0
             for x_tile in y_tile:
-                if 0 < x_tile <= 0.3:
+                print x_tile
+                if 0 == x_tile <= 0.5:
                     tile = EnvironmentTile(x, y, self.block_size[0], self.block_size[1], "Water", "Water",
                                            self.image_cache.load_image("Water.png"))
-                if 0.3 < x_tile <= 0.7:
+                elif 0.5 < x_tile <= 0.55:
                     tile = EnvironmentTile(x, y, self.block_size[0], self.block_size[1], "Sand", "Sand",
                                            self.image_cache.load_image("Sand.png"))
                 else:
@@ -193,14 +204,6 @@ class Game:
                 x += 32
             y += 32
 
-    # Camera function
-    def main_camera(self, camera, target_rect):
-        l, t, _, _ = target_rect
-        _, _, w, h = camera
-        l, t, _, _ = -l + self.window_size[0] / 2, -t + self.window_size[1] / 2, w, h
 
-        l = min(0, l)
-        l = max(-(camera.width - self.window_size[0]), l)
-        t = max(-(camera.height - self.window_size[1]), t)
-        t = min(0, t)
-        return Rect(l, t, w, h)
+game = Game((640, 640), (32, 32))
+game.run()
