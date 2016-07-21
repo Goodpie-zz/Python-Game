@@ -21,7 +21,7 @@ class Player(Entity):
         self.rect = Rect(self.pos_x, self.pos_y, 32, 32)
 
     def update(self, up, down, left, right, position_check,
-               obsticles, trees, level_width, level_height):
+               obsticles, level_width, level_height):
         if up:
             self.pos_y = -8
         elif down:
@@ -41,12 +41,12 @@ class Player(Entity):
         self.rect.top += self.pos_y
 
         # Collision Detection and animations
-        self.collision_test(level_width, level_height, trees, obsticles)
+        self.collision_test(level_width, level_height, obsticles)
 
         if position_check:
             print "Player Pos: {0:s} ".format(self.rect)
 
-    def collision_test(self, level_width, level_height, trees, obsticles):
+    def collision_test(self, level_width, level_height, obsticles):
         if self.rect.top < 0:
             self.pos_y = 0
             self.rect.top = 0
@@ -63,24 +63,6 @@ class Player(Entity):
             self.pos_x = 0
             self.rect.right = level_width
 
-        for t in trees:
-            if pygame.sprite.collide_rect(self, t):
-                if self.pos_x > 0:
-                    self.rect.right = t.rect.left
-                    self.pos_x = 0
-                    self.pos_y = 0
-                elif self.pos_x < 0:
-                    self.rect.left = t.rect.right
-                    self.pos_x = 0
-                    self.pos_y = 0
-                elif self.pos_y > 0:
-                    self.rect.bottom = t.rect.top
-                    self.pos_x = 0
-                    self.pos_y = 0
-                elif self.pos_y < 0:
-                    self.rect.top = t.rect.bottom
-                    self.pos_x = 0
-                    self.pos_y = 0
         for o in obsticles:
             if pygame.sprite.collide_rect(self, o):
                 if self.pos_x > 0:

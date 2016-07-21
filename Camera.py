@@ -14,3 +14,4 @@ class Camera(object):
 
     def reverse(self, pos):
         return pos[0] - self.state.left, pos[1] - self.state.top
+
