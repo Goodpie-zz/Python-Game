@@ -1,15 +1,15 @@
 import pygame, sys, os, functions
 from pygame.locals import *
 
-#Main Entity Class
-class Entity(pygame.sprite.Sprite):
 
+# Main Entity Class
+class Entity(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
-#The Player Class
-class Player(Entity):
 
+# The Player Class
+class Player(Entity):
     def __init__(self, x, y, image_cache):
         Entity.__init__(self)
         self.image_cache = image_cache
@@ -36,18 +36,18 @@ class Player(Entity):
         if not (left or right):
             self.pos_x = 0
 
-        #Moving the character
+        # Moving the character
         self.rect.left += self.pos_x
         self.rect.top += self.pos_y
 
-        #Collision Detection and animations
-        self.Collision_Test(level_width, level_height, trees, obsticles)
+        # Collision Detection and animations
+        self.collision_test(level_width, level_height, trees, obsticles)
 
         if position_check:
-            print "Player Pos: %s " % (self.rect)
+            print "Player Pos: {0:s} ".format(self.rect)
 
-    def Collision_Test(self, level_width, level_height, trees, obsticles):
-        if self.rect.top < 0 :
+    def collision_test(self, level_width, level_height, trees, obsticles):
+        if self.rect.top < 0:
             self.pos_y = 0
             self.rect.top = 0
 
@@ -100,8 +100,7 @@ class Player(Entity):
                     self.pos_x = 0
                     self.pos_y = 0
 
-                 
-    def Walking_Animation(self, walking, up, down, left, right):
+    def walking_animation(self, walking, up, down, left, right):
         walk = walking
         if down:
             if walk:
@@ -131,15 +130,15 @@ class Player(Entity):
             elif not walk:
                 walk = True
                 self.image = functions.get_image("data/images/Character_Right.png", self.image_cache)
-                                    
+
         return walk
 
     def get_pos(self):
-        return (self.pos_x, self.pos_y)
+        return self.pos_x, self.pos_y
 
-#mouse Class
+
+# mouse Class
 class Mouse(Entity):
-
     def __init__(self, pos):
         Entity.__init__(self)
         self.x = pos[0]
@@ -153,241 +152,68 @@ class Mouse(Entity):
         self.rect.left = pos[0]
 
         if check:
-            print "Mouse Pos: %s" %(self.rect)
+            print "Mouse Pos: %s" % self.rect
             print self.x, self.y
 
     def get_rect(self):
-        return (self.x, self.y)
+        return self.x, self.y
 
-#Grass Class
-class Grass(Entity):
-    
-    def __init__(self, x, y, image_cache):
+
+# Environment Asset
+class EnvironmentTile(Entity):
+    def __init__(self, x, y, width, height, type, name, sprite_image):
         Entity.__init__(self)
         self.x = x
         self.y = y
-        self.name = "Grass"
-        self.image = functions.get_image("data/images/Grass1.png", image_cache)
+        self.type = type
+        self.name = name
+        self.image = sprite_image
         self.image.convert()
-        self.rect = Rect(x, y, 32, 32)
+        self.rect = Rect(x, y, width, height)
+
     def hit_test(self, x, y):
-        return (self.rect.x <= x < self.rect.x+self.rect.width and 
-                self.rect.y <= y < self.rect.y+self.rect.height)
-    def get_rect(self):
-        return self.rect
+        hit_x = self.rect.x <= x < self.rect.x + self.rect.width  # X between the left and right
+        hit_y = self.rect.y <= y < self.rect.y + self.rect.height  # Y between the top and bottom
+        return hit_x and hit_y
 
-#Plain Grass
-class Plain_Grass(Entity):
-        
-    def __init__(self, x, y, image_cache):
-        Entity.__init__(self)
-        self.x = x
-        self.y = y
-        self.name = "Plain_Grass"
-        self.image = functions.get_image("data/images/Grass_Plain.png", image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 32, 32)
-    def hit_test(self, x, y):
-        return (self.rect.x <= x < self.rect.x+self.rect.width and 
-                self.rect.y <= y < self.rect.y+self.rect.height)
-    def get_rect(self):
-        return self.rect
-
-#Grass With Flower
-class Grass_Flower(Entity):
-
-    def __init__(self, x, y, image_cache):
-        Entity.__init__(self)
-        self.x = x
-        self.y = y
-        self.name = "Grass_Flower"
-        self.image = functions.get_image("data/images/Grass_Flower.png", image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 32, 32)
-    def hit_test(self, x, y):
-        return (self.rect.x <= x < self.rect.x+self.rect.width and 
-                self.rect.y <= y < self.rect.y+self.rect.height)
-    def get_rect(self):
-        return self.rect
-
-#Grass To Sand (Directly, no angles)
-class Grass_To_SandD(Entity):
-
-    def __init__(self, x, y, image_cache):
-        Entity.__init__(self)
-        self.name = "Grass_To_SandD"
-        self.image = functions.get_image("data/images/Grass_To_SandD.png", image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 32, 32)
-    def hit_test(self, x, y):
-        return (self.rect.x <= x < self.rect.x+self.rect.width and 
-                self.rect.y <= y < self.rect.y+self.rect.height) 
-
-#Trees
-class Tree(Entity):
-
-    def __init__(self, x, y, image_cache):
-        global rect, image
-        Entity.__init__(self)
-        self.name = "Tree"
-        self.image = functions.get_image("data/images/Tree.png", image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 32, 64)
-    def hit_test(self, x, y):
-        return (self.rect.x <= x < self.rect.x+self.rect.width and 
-                self.rect.y <= y < self.rect.y+self.rect.height)
-    def get_rect(self):
-        return self.rect
-#Paths
-class Path(Entity):
-
-    def __init__(self, x, y, image_cache):
-        Entity.__init__(self)
-        self.name = "Path"
-        self.image = functions.get_image("data/images/Path.png", image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 32, 32)
-    def hit_test(self, x, y):
-        return (self.rect.x <= x < self.rect.x+self.rect.width and 
-                self.rect.y <= y < self.rect.y+self.rect.height)
-    def get_rect(self):
-        return self.rect
-
-#Sands
-class Sand(Entity):
-
-    def __init__(self, x, y, image_cache):
-        Entity.__init__(self)
-        self.name = "Sand"
-        self.image = functions.get_image("data/images/Sand.png", image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 32, 32)
-    def hit_test(self, x, y):
-        return (self.rect.x <= x < self.rect.x+self.rect.width and 
-                self.rect.y <= y < self.rect.y+self.rect.height)
-    def get_rect(self):
-            return self.rect
-
-#Sand With Dead Tree
-class Sand_Dead(Entity):
-
-    def __init__(self, x, y, image_cache):
-        Entity.__init__(self)
-        self.name = "Sand_Dead"
-        self.image = functions.get_image("data/images/Dead_Branch.png", image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 32, 32)
-    def hit_test(self, x, y):
-        return (self.rect.x <= x < self.rect.x+self.rect.width and 
-                self.rect.y <= y < self.rect.y+self.rect.height)
     def get_rect(self):
         return self.rect
 
 
-#Sand To Water Direct (Shore Line)
-class Sand_To_Water(Entity):
-
-    def __init__(self, x, y, image_cache):
+# Button class
+class Button(Entity):
+    def __init__(self, id, x, y, main_image, alt_image=None):
         Entity.__init__(self)
-        self.name = "Sand_To_Water"
-        self.image = functions.get_image("data/images/Sand_To_Water.png", image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 32, 32)
-    def hit_test(self, x, y):
-        return (self.rect.x <= x < self.rect.x+self.rect.width and 
-                self.rect.y <= y < self.rect.y+self.rect.height)
-    def get_rect(self):
-        return self.rect
 
+        self.id = id
+        self.main_image = main_image
+        self.main_image.convert()
 
-#Water
-class Water(Entity):
-
-    def __init__(self, x, y, image_cache):
-        Entity.__init__(self)
-        self.name = "Water"
-        self.image = functions.get_image("data/images/Water.png", image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 32, 32)
-    def hit_test(self, x, y):
-        return (self.rect.x <= x < self.rect.x+self.rect.width and 
-                self.rect.y <= y < self.rect.y+self.rect.height)
-    def get_rect(self):
-        return self.rect
-
-#Planks
-class Planks(Entity):
-
-    def __init__(self, x, y, image_cache):
-        Entity.__init__(self)
-        self.name = "Planks"
-        self.image = functions.get_image("data/images/Wood.png", image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 32, 32)
-    def hit_test(self, x, y):
-        return (self.rect.x <= x < self.rect.x+self.rect.width and 
-                self.rect.y <= y < self.rect.y+self.rect.height)
-    def get_rect(self):
-        return self.rect
-
-
-class Dug_Out(Entity):
-
-    def __init__(self, x, y, image_cache):
-        Entity.__init__(self)
-        self.image = functions.get_image("data/images/Dug_Out.png", image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 32, 32)
-    def hit_test(self, x, y):
-        return (self.rect.x <= x < self.rect.x+self.rect.width and 
-                self.rect.y <= y < self.rect.y+self.rect.height)
-    def get_rect(self):
-        return self.rect
-
-
-#Start Menu New Game
-class New_Game(Entity):
-
-    def __init__(self, x, y, image_cache):
-        Entity.__init__(self)
-        self.image_cache = image_cache
-        self.image = functions.get_image("data/images/New_Game.png", self.image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 200, 50)
-
-    def update(self, mousepos):
-        if self.rect.collidepoint(mousepos):
-            self.image = functions.get_image("data/images/New_Game_Hover.png", self.image_cache)
+        # If the alternate image doesn't exist, just use the same image
+        if alt_image is not None:
+            self.alt_image = alt_image
         else:
-            self.image = functions.get_image("data/images/New_Game.png", self.image_cache)
+            self.alt_image = main_image
+        self.alt_image.convert()
 
-    def check_click(self, clicked, mousepos):
-        if self.rect.collidepoint(mousepos):
-            if clicked:
-                self.image = functions.get_image("data/images/New_Game_Hover.png", self.image_cache)
-                start = True
-            else:
-                start = False
+        self.image = main_image  # The default image for the button
+        self.size = self.image.get_rect().size
+        self.rect = Rect(x, y, self.size[0], self.size[1])
+
+        self.mouse_colliding = False
+
+    def update(self, mouse_pos):
+
+        # Alternate between the alt and main image depending on mouse over
+        if self.rect.collidepoint(mouse_pos):
+            self.image = self.alt_image
+            self.mouse_colliding = True
         else:
-            start = False
-        return start
+            self.image = self.main_image
+            self.mouse_colliding = False
 
-#Start Menu Quit Button
-class Quit_Game(Entity):
+    def mouse_collision(self):
+        return self.mouse_colliding
 
-    def __init__(self, x, y, image_cache):
-        Entity.__init__(self)
-        self.image_cache = image_cache
-        self.image = functions.get_image("data/images/Quit.png", self.image_cache)
-        self.image.convert()
-        self.rect = Rect(x, y, 200, 50)
-
-    def update(self, mousepos, clicked):
-        if self.rect.collidepoint(mousepos):
-            self.image = functions.get_image("data/images/Quit_Hover.png", self.image_cache)
-            if clicked:
-                pygame.quit()
-                sys.exit()
-        else:
-            self.image = functions.get_image("data/images/Quit.png", self.image_cache)
-           
+    def action(self):
+        pass  # Override in main if required
