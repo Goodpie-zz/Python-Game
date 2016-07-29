@@ -204,6 +204,5 @@ class Game:
                 x += 32
             y += 32
 
-
 game = Game((640, 640), (32, 32))
 game.run()
